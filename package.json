@@ -1,0 +1,24 @@
+{
+  "name": "job-tracker",
+  "version": "1.0.0",
+  "description": "Local CLI job application tracker",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "bin": {
+    "track": "src/index.js",
+    "jobtrack": "src/index.js",
+    "jt": "src/index.js"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "cli-table3": "^0.6.5",
+    "commander": "^12.1.0",
+    "date-fns": "^4.1.0",
+    "inquirer": "^8.2.6",
+    "picocolors": "^1.1.0"
+  }
+}

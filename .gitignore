@@ -1,0 +1,12 @@
+node_modules/
+
+# local database and WAL files — personal application data, not shared
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# generated exports
+applications_summary.md
+applications_summary.csv
+
+npm-debug.log*

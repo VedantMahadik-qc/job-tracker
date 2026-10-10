@@ -23,6 +23,16 @@ Your data is stored in `data/tracker.db`, resolved relative to this project fold
 
 Interactive prompt to log a new application: company, role, track (`Quantum` / `HPC` / `FullStack` / `Other`), CV version used, status, location, URL, notes, and who referred you (if anyone). The applied date is set to today automatically.
 
+```bash
+jt add
+```
+
+For quick logging without the prompts, pass company and role directly — everything else becomes a flag with sensible defaults (`track` defaults to `Other`, `status` to `Applied`):
+
+```bash
+jt add "Anthropic" "Research Engineer" --track Quantum --cv v2-quantum --referral "Jamie"
+```
+
 ### `jt list` (alias `ls`)
 
 Table view of every application, color-coded by status:
@@ -87,6 +97,20 @@ jt export                        # applications_summary.md
 jt export --format csv           # applications_summary.csv
 jt export -o ~/Desktop/apps.md   # custom path
 ```
+
+### `jt completion <bash|pwsh>`
+
+Prints a tab-completion script for your shell, registered against all three command names (`track`, `jobtrack`, `jt`). Append it to your shell profile once:
+
+```bash
+# bash (~/.bashrc)
+jt completion bash >> ~/.bashrc
+
+# PowerShell ($PROFILE)
+jt completion pwsh >> $PROFILE
+```
+
+Reload your shell afterward. Completion covers subcommand names (`add`, `list`, `filter`, etc.) — it doesn't complete option flags or application data.
 
 ## Data model
 

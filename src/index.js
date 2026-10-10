@@ -10,6 +10,7 @@ const pc = require('picocolors');
 const db = require('./db');
 const { colorStatus, today, formatDaysSince, daysSince, emptyToNull, buildApplicationsTable } = require('./formatters');
 const exporters = require('./export');
+const completion = require('./completion');
 
 const TRACKS = ['Quantum', 'HPC', 'FullStack', 'Other'];
 const STATUSES = ['Bookmarked', 'Applied', 'Screening', 'Technical', 'Final', 'Offer', 'Rejected'];
@@ -24,9 +25,46 @@ program
   .version('1.0.0');
 
 program
-  .command('add')
-  .description('Add a new job application')
-  .action(async () => {
+  .command('add [company] [role]')
+  .description('Add a new job application (non-interactive if company and role are both given)')
+  .option('-t, --track <track>', `track: ${TRACKS.join('|')}`)
+  .option('-s, --status <status>', `status: ${STATUSES.join('|')}`, 'Applied')
+  .option('-c, --cv <version>', 'CV version used')
+  .option('-l, --location <location>', 'location')
+  .option('-u, --url <url>', 'job posting URL')
+  .option('-n, --notes <notes>', 'notes')
+  .option('-r, --referral <referral>', 'who referred you')
+  .action(async (company, role, options) => {
+    if (company && role) {
+      const track = options.track || 'Other';
+      const status = options.status;
+
+      if (!TRACKS.includes(track)) {
+        console.log(pc.red(`Unknown track "${track}". Expected one of: ${TRACKS.join(', ')}`));
+        return;
+      }
+      if (!STATUSES.includes(status)) {
+        console.log(pc.red(`Unknown status "${status}". Expected one of: ${STATUSES.join(', ')}`));
+        return;
+      }
+
+      const app = db.createApplication({
+        company: company.trim(),
+        role: role.trim(),
+        track,
+        status,
+        cv_version: emptyToNull(options.cv),
+        location: emptyToNull(options.location),
+        url: emptyToNull(options.url),
+        applied_date: today(),
+        notes: emptyToNull(options.notes),
+        referral: emptyToNull(options.referral),
+      });
+
+      console.log(pc.green(`\nAdded application #${app.id}: ${app.company} — ${app.role}\n`));
+      return;
+    }
+
     const answers = await inquirer.prompt([
       {
         type: 'input',
@@ -332,6 +370,20 @@ program
 
     fs.writeFileSync(outputPath, content, 'utf8');
     console.log(pc.green(`Exported ${apps.length} application(s) to ${outputPath}`));
+  });
+
+program
+  .command('completion <shell>')
+  .description('Print a tab-completion script to add to your shell profile (bash or pwsh)')
+  .action((shell) => {
+    const normalized = shell.toLowerCase();
+    if (normalized === 'bash') {
+      process.stdout.write(completion.bashScript());
+    } else if (normalized === 'pwsh' || normalized === 'powershell') {
+      process.stdout.write(completion.pwshScript());
+    } else {
+      console.log(pc.red(`Unknown shell "${shell}". Supported: bash, pwsh`));
+    }
   });
 
 program.parse(process.argv);
